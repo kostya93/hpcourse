@@ -71,7 +71,6 @@ int main()
 			  input >> B[idx];
 		  }
 	  }
-	  
 
       // allocate device buffer to hold message
       cl::Buffer dev_a(context, CL_MEM_READ_ONLY,  sizeof(float) * size_A);
@@ -84,7 +83,8 @@ int main()
 
       // load named kernel from opencl source
 	  cl::Kernel kernel(program, "matrix_mult");
-	  cl::KernelFunctor matrix_mult(kernel, queue, cl::NullRange, cl::NDRange(MAX_SIZE, MAX_SIZE), cl::NDRange(block_size, block_size));
+	  int sz = (N % block_size) ? (N / block_size + 1) * block_size : N;
+	  cl::KernelFunctor matrix_mult(kernel, queue, cl::NullRange, cl::NDRange(sz, sz), cl::NDRange(block_size, block_size));
 	  matrix_mult(dev_a, dev_b, dev_c, N, M);
 
       queue.enqueueReadBuffer(dev_c, CL_TRUE, 0, sizeof(float) * size_C, &C[0]);
